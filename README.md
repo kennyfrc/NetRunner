@@ -1,3 +1,18 @@
+## NetRunner
+
+Rather than rip all the hybrid stuff out, I've made it configurable. By default its the same as vanilla
+stockfish. To turn off hybrid, set NNUE_Tempo to false and the two thresholds to 32000. To tune the scale
+for Night Nurse, set NNUE_Scale to 250.
+
+```
+option name Use NNUE type check default true
+option name NNUE_Scale type spin default 125 min 50 max 600
+option name NNUE_Threshold1 type spin default 550 min 0 max 40000
+option name NNUE_Threshold2 type spin default 150 min 0 max 40000
+option name NNUE_Tempo type check default true
+option name EvalFile type string default nn-82215d0fd0df.nnue
+```
+
 ## Overview
 
 [![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)

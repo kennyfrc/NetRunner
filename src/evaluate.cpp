@@ -34,11 +34,22 @@
 namespace Eval {
 
   bool useNNUE;
+  bool nnue_tempo;
+  int nnue_scale;
+  Value NNUEThreshold1, NNUEThreshold2;
+  
   std::string eval_file_loaded="None";
 
   void init_NNUE() {
 
     useNNUE = Options["Use NNUE"];
+    nnue_tempo = Options["NNUE_Tempo"];
+    nnue_scale = Options["NNUE_Scale"];
+    int temp = Options["NNUE_Threshold1"];
+    NNUEThreshold1 = Value(temp);
+    temp = Options["NNUE_Threshold2"];
+    NNUEThreshold2 = Value(temp);
+
     std::string eval_file = std::string(Options["EvalFile"]);
     if (useNNUE && eval_file_loaded != eval_file)
         if (Eval::NNUE::load_eval_file(eval_file))
@@ -115,8 +126,6 @@ namespace {
   constexpr Value LazyThreshold1 =  Value(1400);
   constexpr Value LazyThreshold2 =  Value(1300);
   constexpr Value SpaceThreshold = Value(12222);
-  constexpr Value NNUEThreshold1 =   Value(550);
-  constexpr Value NNUEThreshold2 =   Value(150);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -941,12 +950,12 @@ make_v:
 Value Eval::evaluate(const Position& pos) {
 
   bool classical = !Eval::useNNUE
-                ||  abs(eg_value(pos.psq_score())) * 16 > NNUEThreshold1 * (16 + pos.rule50_count());
+    ||  abs(eg_value(pos.psq_score())) * 16 > Eval::NNUEThreshold1 * (16 + pos.rule50_count());
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 5 / 4 + Tempo;
+    : NNUE::evaluate(pos) * Eval::nnue_scale / 100 + (Eval::nnue_tempo?Tempo:0);
 
-  if (classical && Eval::useNNUE && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
-      v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  if (classical && Eval::useNNUE && abs(v) * 16 < Eval::NNUEThreshold2 * (16 + pos.rule50_count()))
+    v = NNUE::evaluate(pos) * Eval::nnue_scale / 100 + (Eval::nnue_tempo?Tempo:0);
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
