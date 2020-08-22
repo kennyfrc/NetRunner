@@ -4,6 +4,10 @@ Rather than rip all the hybrid stuff out, I've made it configurable. By default 
 stockfish. To turn off hybrid, set NNUE_Tempo to false and the two thresholds to 32000. To tune the scale
 for Night Nurse, set NNUE_Scale to 250.
 
+What is scale? Suppose your net gives somewhat low evals. Then your net won't work well with the search's tuning.
+To adjust your nnue's output, change the NNUE_Scale, which is given as percentage. By default, scale is set to 125.
+Frosty needs 175, Night Nurse 250.
+
 ```
 option name Use NNUE type check default true
 option name NNUE_Scale type spin default 125 min 50 max 600
